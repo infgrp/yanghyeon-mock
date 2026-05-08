@@ -687,7 +687,10 @@ function doSearch(){
   sr.style.display='block';
   if(q.length<1){sr.innerHTML='';return}
   const all=allStudents();
-  const res=all.filter(s=>s.name.includes(q)||String(s.num).includes(q)).slice(0,30);
+  const res=all.filter(s=>{
+    const sid=S.g+String(s.cls||0).padStart(2,'0')+String(s.num||0).padStart(2,'0');
+    return s.name.includes(q)||sid.includes(q);
+  }).slice(0,30);
   if(!res.length){sr.innerHTML='<div class="empty">검색 결과 없음</div>';return}
   const ss=subs();
   sr.innerHTML=res.map((s,i)=>{
@@ -726,15 +729,11 @@ function showDetail(i){
   
   // Monthly trend chart
   h+='<div class="ct">월별 등급 추이</div>';
-  if(ORD.length<2){
-    h+='<div class="empty">월별 데이터가 2회 이상 필요합니다.<br>추가 시험 데이터가 업로드되면<br>과목별 등급 변화 꺾은선 그래프가 여기에 표시됩니다.</div>';
-  } else {
-    h+='<div class="chart-box"><canvas id="trend-chart"></canvas></div>';
-  }
+  h+='<div class="chart-box"><canvas id="trend-chart"></canvas></div>';
   h+='</div>';
   sd.innerHTML=h;
-  
-  if(ORD.length>=2) drawTrend(s);
+
+  drawTrend(s);
 }
 
 function drawTrend(s){
@@ -812,7 +811,7 @@ function updateTop(){
 }
 
 function CC(el,cfg){try{if(typeof Chart==='undefined'){el.parentElement.innerHTML='<div class="empty">차트 라이브러리 로딩 중...</div>';return null}return new Chart(el,cfg)}catch(e){console.error('Chart error:',e);return null}}
-try{buildF();update()}catch(e){console.error('Init error:',e);document.querySelector('.w').insertAdjacentHTML('afterbegin','<div style="background:#fce8e8;color:#791F1F;padding:12px;border-radius:10px;margin-bottom:10px;font-size:12px">오류 발생: '+e.message+'</div>')}
+try{const av=availGrades();if(!av.includes(S.g))S.g=av[0]||'1';buildF();update()}catch(e){console.error('Init error:',e);document.querySelector('.w').insertAdjacentHTML('afterbegin','<div style="background:#fce8e8;color:#791F1F;padding:12px;border-radius:10px;margin-bottom:10px;font-size:12px">오류 발생: '+e.message+'</div>')}
 </script>
 </body>
 </html>
