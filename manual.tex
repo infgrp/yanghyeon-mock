@@ -1,0 +1,474 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\setCJKmainfont{Noto Sans CJK KR}
+\setCJKsansfont{Noto Sans CJK KR}
+\setCJKmonofont{Noto Sans CJK KR}
+\setmonofont{DejaVu Sans Mono}[Scale=0.85]
+
+\usepackage{geometry}
+\geometry{margin=2.5cm,top=2cm,bottom=2cm}
+
+\usepackage{xcolor}
+\definecolor{codebg}{HTML}{F5F3EE}
+\definecolor{codeframe}{HTML}{D3D1C7}
+\definecolor{accent}{HTML}{534AB7}
+\definecolor{note}{HTML}{E6F1FB}
+\definecolor{noteborder}{HTML}{378ADD}
+\definecolor{warn}{HTML}{FAEEDA}
+\definecolor{warnborder}{HTML}{EF9F27}
+\definecolor{success}{HTML}{E1F5EE}
+\definecolor{successborder}{HTML}{1D9E75}
+
+\usepackage{listings}
+\lstset{
+  backgroundcolor=\color{codebg},
+  frame=single,
+  rulecolor=\color{codeframe},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  breakatwhitespace=false,
+  tabsize=2,
+  showstringspaces=false,
+  xleftmargin=8pt,
+  xrightmargin=8pt,
+  framexleftmargin=4pt,
+  framexrightmargin=4pt,
+  aboveskip=10pt,
+  belowskip=6pt,
+  literate={→}{$\rightarrow$}1
+}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{notebox}{
+  colback=note, colframe=noteborder,
+  fonttitle=\bfseries, title={참고},
+  boxrule=0.5pt, arc=4pt, left=8pt, right=8pt,
+  top=4pt, bottom=4pt, breakable
+}
+
+\newtcolorbox{warnbox}{
+  colback=warn, colframe=warnborder,
+  fonttitle=\bfseries, title={주의},
+  boxrule=0.5pt, arc=4pt, left=8pt, right=8pt,
+  top=4pt, bottom=4pt, breakable
+}
+
+\newtcolorbox{successbox}{
+  colback=success, colframe=successborder,
+  fonttitle=\bfseries, title={완료},
+  boxrule=0.5pt, arc=4pt, left=8pt, right=8pt,
+  top=4pt, bottom=4pt, breakable
+}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=accent,
+  urlcolor=accent,
+  pdftitle={양현고등학교 모의고사 대시보드 매뉴얼},
+  pdfauthor={infgrp}
+}
+
+\usepackage{enumitem}
+\setlist{itemsep=2pt,parsep=2pt}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage{longtable}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}양현고 모의고사 대시보드 매뉴얼}
+\fancyhead[R]{\small\color{gray}\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\vspace{-1cm}{\color{accent}\rule{\linewidth}{2pt}}\\[0.5cm]
+{\LARGE\bfseries 양현고등학교 모의고사 성적 분석 대시보드}\\[0.3cm]
+{\Large 설치 및 운영 매뉴얼}\\[0.3cm]
+{\color{accent}\rule{\linewidth}{2pt}}}
+\author{GitHub: \texttt{infgrp}}
+\date{2026년 3월}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{시스템 개요}
+% ============================================================
+
+이 시스템은 매달 학교에서 제공하는 모의고사 성적 엑셀 파일을 입력하면 웹 기반 성적 분석 대시보드를 자동으로 생성하는 도구이다.
+
+\subsection{특징}
+\begin{itemize}
+  \item 서버 불필요 --- GitHub Pages에서 무료 호스팅
+  \item 학생 성적 데이터가 외부 서버로 전송되지 않음 (브라우저 내 처리)
+  \item 엑셀 파일을 넣고 스크립트 한 줄 실행하면 대시보드 갱신
+  \item 모바일(스마트폰) 최적화 UI
+\end{itemize}
+
+\subsection{대시보드 기능}
+\begin{longtable}{lp{10cm}}
+\toprule
+\textbf{탭} & \textbf{기능} \\
+\midrule
+통계 & 등급 분포, 반별 성적 분포, 반별 평균 등급, 과목별 종합 분석, 과목 간 상관 분석(산점도+상관계수) \\
+반비교 & 담임반 하이라이트, 반별 평균등급/1\textasciitilde3등급 비율, 등급분포 비교 \\
+담임반 & 학생 요약 카드, 등급 변동 알림, 등급 경계 근접 학생, 취약 과목 히트맵, 국영수 vs 탐구 밸런스 \\
+검색 & 학생 이름/번호 검색, 개인 상세 카드, 월별 등급 추이 그래프 \\
+상위권 & 5명 단위 상위권 분석, 과목별 레이더 차트 \\
+일람표 & 총점순 성적 일람표 (등급 뱃지 포함) \\
+\bottomrule
+\end{longtable}
+
+\subsection{파일 구조}
+\begin{lstlisting}
+yanghyeon-mock/
+  build_dashboard.py   # 엑셀 → 대시보드 생성 스크립트
+  template.html        # 대시보드 HTML 템플릿
+  README.md            # 설명서
+  .gitignore           # Git 제외 목록
+  data/                # 엑셀 파일 저장 폴더
+    2026.03/           #   시험 회차별 하위 폴더
+      1학년.xlsx
+      2학년.xlsx
+      3학년.xlsx
+    2026.04/           #   다음 시험 추가 시 폴더 생성
+      ...
+  docs/                # 생성된 대시보드
+    index.html         #   GitHub Pages가 서빙하는 파일
+\end{lstlisting}
+
+
+% ============================================================
+\section{사전 준비 (최초 1회)}
+% ============================================================
+
+\subsection{필요 소프트웨어 설치}
+
+\subsubsection{Python 3}
+
+이미 설치되어 있는지 확인한다.
+
+\begin{lstlisting}
+python --version
+\end{lstlisting}
+
+Python 3.8 이상이면 된다. 없으면 \url{https://www.python.org/downloads/}에서 설치한다.
+
+\begin{warnbox}
+Windows 설치 시 ``Add Python to PATH'' 체크박스를 반드시 선택한다.
+\end{warnbox}
+
+\subsubsection{필수 라이브러리}
+
+\begin{lstlisting}
+pip install pandas openpyxl
+\end{lstlisting}
+
+\subsubsection{Git}
+
+이미 설치되어 있는지 확인한다.
+
+\begin{lstlisting}
+git --version
+\end{lstlisting}
+
+없으면 \url{https://git-scm.com/downloads}에서 설치한다.
+
+\subsection{GitHub 저장소 생성}
+
+\begin{enumerate}
+  \item \url{https://github.com/new}에 접속하여 로그인한다.
+  \item Repository name: \texttt{yanghyeon-mock}
+  \item Public 선택 (GitHub Pages 무료 사용 조건)
+  \item ``Create repository'' 클릭
+\end{enumerate}
+
+\subsection{로컬 프로젝트 초기화}
+
+다운로드한 zip 파일의 압축을 풀고, 터미널(명령 프롬프트)에서 해당 폴더로 이동한다.
+
+\begin{lstlisting}
+cd yanghyeon-mock
+
+git init
+git config user.name "infgrp"
+git config user.email "infgrp@hanmail.net"
+git remote add origin https://github.com/infgrp/yanghyeon-mock.git
+git branch -M main
+\end{lstlisting}
+
+\subsection{첫 번째 빌드 및 배포}
+
+\begin{lstlisting}
+# 1. 대시보드 생성
+python build_dashboard.py
+
+# 2. 전체 파일을 GitHub에 올리기
+git add .
+git commit -m "최초 배포: 3월 모의고사"
+git push -u origin main
+\end{lstlisting}
+
+\begin{notebox}
+\texttt{git push} 시 GitHub 인증을 요구한다. 
+\begin{itemize}
+  \item HTTPS 방식: GitHub Personal Access Token이 필요하다.\\
+    GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token\\
+    \texttt{repo} 권한을 체크하고 생성한다. 비밀번호 대신 이 토큰을 입력한다.
+  \item SSH 방식: SSH 키를 생성하고 GitHub에 등록하면 비밀번호 입력 없이 사용할 수 있다.
+\end{itemize}
+\end{notebox}
+
+\subsection{GitHub Pages 활성화}
+
+\begin{enumerate}
+  \item GitHub 저장소 페이지 접속: \url{https://github.com/infgrp/yanghyeon-mock}
+  \item 상단 메뉴에서 \textbf{Settings} 클릭
+  \item 왼쪽 사이드바에서 \textbf{Pages} 클릭
+  \item Source: \textbf{Deploy from a branch}
+  \item Branch: \textbf{main}, 폴더: \textbf{/docs}
+  \item \textbf{Save} 클릭
+\end{enumerate}
+
+1\textasciitilde2분 후 아래 주소에서 대시보드에 접속할 수 있다.
+
+\begin{successbox}
+\url{https://infgrp.github.io/yanghyeon-mock/}
+\end{successbox}
+
+
+% ============================================================
+\section{매달 반복 작업}
+% ============================================================
+
+매달 모의고사 성적 엑셀 파일을 받으면 아래 4단계를 수행한다.
+
+\subsection{1단계: 엑셀 파일 준비}
+
+시험 폴더를 생성하고 엑셀 파일을 복사한다. 폴더명은 \texttt{yyyy.mm} 형식이다.
+
+\begin{lstlisting}
+mkdir data/2026.04
+
+copy  4월_1학년_성적.xlsx  data\2026.04\1학년.xlsx
+copy  4월_2학년_성적.xlsx  data\2026.04\2학년.xlsx
+copy  4월_3학년_성적.xlsx  data\2026.04\3학년.xlsx
+\end{lstlisting}
+
+\begin{warnbox}
+파일명에 반드시 ``1학년'', ``2학년'', ``3학년'' 중 하나가 포함되어야 한다. 스크립트가 파일명으로 학년을 인식한다.
+\end{warnbox}
+
+\subsection{2단계: 대시보드 빌드}
+
+\begin{lstlisting}
+python build_dashboard.py
+\end{lstlisting}
+
+정상 실행 시 아래와 같은 출력이 나온다.
+
+\begin{lstlisting}
+==================================================
+  양현고등학교 모의고사 대시보드 빌드
+==================================================
+
+  발견된 시험: 2026.03, 2026.04
+
+  2026.03 (3월) 처리 중...
+    1학년: 1학년.xlsx → 271명 파싱 완료
+    2학년: 2학년.xlsx → 255명 파싱 완료
+    3학년: 3학년.xlsx → 233명 파싱 완료
+
+  2026.04 (4월) 처리 중...
+    1학년: 1학년.xlsx → 270명 파싱 완료
+    ...
+
+  대시보드 생성 완료: docs/index.html
+\end{lstlisting}
+
+\subsection{3단계: GitHub에 배포}
+
+\begin{lstlisting}
+git add .
+git commit -m "4월 모의고사 데이터 추가"
+git push
+\end{lstlisting}
+
+또는 빌드와 배포를 한 번에:
+
+\begin{lstlisting}
+python build_dashboard.py --push -m "4월 모의고사 데이터 추가"
+\end{lstlisting}
+
+\subsection{4단계: 확인}
+
+1\textasciitilde2분 후 \url{https://infgrp.github.io/yanghyeon-mock/}에 접속하여 새 데이터가 반영되었는지 확인한다. 시험 선택 필터에 ``4월'' 버튼이 추가되어 있어야 한다.
+
+
+% ============================================================
+\section{엑셀 파일 형식 요구사항}
+% ============================================================
+
+스크립트는 학년별로 서로 다른 엑셀 구조를 파싱한다. 학교에서 제공하는 엑셀 형식이 바뀌면 \texttt{build\_dashboard.py}의 파서 함수를 수정해야 한다.
+
+\subsection{1학년}
+
+\begin{itemize}
+  \item 시트 이름에 ``성적 정보''가 포함되어야 한다.
+  \item 0행: 과목 헤더 (국어, 수학, 영어, 사회탐구, 과학탐구, 한국사)
+  \item 1행: 세부 헤더 (원점수, 표준점수, 백분위, 등급)
+  \item 2행부터 데이터
+  \item 열 구조: [학년, 반, 번호, 이름, 국어원점수, ..., 총점, 석차]
+\end{itemize}
+
+\subsection{2학년}
+
+\begin{itemize}
+  \item 시트 이름에 ``모의고사'' 또는 ``2학년''이 포함되어야 한다.
+  \item 3행부터 데이터
+  \item 열 구조: [학급, 학번, 이름, 국어원점수, 국어등급, 수학원점수, 수학등급, ...]
+\end{itemize}
+
+\subsection{3학년}
+
+\begin{itemize}
+  \item 시트 이름에 ``예상점수''가 포함되어야 한다.
+  \item 3행부터 데이터
+  \item 열 구조: [반, 번호, 이름, 국어선택과목, 국어점수, 국어등급, 수학선택과목, ...]
+  \item 탐구 과목은 선택과목명이 포함됨
+\end{itemize}
+
+
+% ============================================================
+\section{문제 해결}
+% ============================================================
+
+\subsection{자주 발생하는 문제}
+
+\begin{longtable}{p{5cm}p{9cm}}
+\toprule
+\textbf{증상} & \textbf{해결 방법} \\
+\midrule
+\texttt{ModuleNotFoundError: pandas} & \texttt{pip install pandas openpyxl} 실행 \\
+\midrule
+학생 수가 0명으로 나옴 & 엑셀 시트 이름 확인. 스크립트가 인식하는 키워드(``성적 정보'', ``모의고사'', ``예상점수'')가 시트 이름에 포함되어 있는지 확인 \\
+\midrule
+GitHub Pages 접속 불가 & Settings → Pages에서 Branch: main, 폴더: /docs 설정 확인. 첫 배포 후 1\textasciitilde2분 소요 \\
+\midrule
+모바일에서 차트 안 보임 & 인터넷 연결 필요 (Chart.js CDN 로드). 차트 외의 통계/테이블은 오프라인에서도 표시됨 \\
+\midrule
+모바일에서 데이터 자체가 안 보임 & 파일 관리자가 아닌 Safari/Chrome 브라우저에서 직접 열어야 함. 로컬 파일(\texttt{file://})보다 GitHub Pages URL 사용 권장 \\
+\midrule
+\texttt{git push} 인증 실패 & GitHub Personal Access Token 발급 필요. 또는 SSH 키 등록 \\
+\bottomrule
+\end{longtable}
+
+\subsection{엑셀 형식이 바뀐 경우}
+
+\texttt{build\_dashboard.py}의 파서 함수를 수정해야 한다. 핵심은 ``몇 번째 행부터 데이터인지''와 ``각 열이 어떤 정보인지''이다.
+
+디버깅 방법:
+
+\begin{lstlisting}
+python -c "
+import pandas as pd
+df = pd.read_excel('data/2026.04/1학년.xlsx', header=None)
+print(df.iloc[0].tolist())  # 0행 확인
+print(df.iloc[1].tolist())  # 1행 확인
+print(df.iloc[2].tolist())  # 2행 (첫 데이터) 확인
+"
+\end{lstlisting}
+
+출력된 열 인덱스를 확인하고 \texttt{parse\_grade1()} 등의 함수에서 \texttt{r[4]}, \texttt{r[7]} 같은 인덱스를 수정한다.
+
+
+% ============================================================
+\section{전체 명령어 요약}
+% ============================================================
+
+\subsection{최초 설정 (1회)}
+
+\begin{lstlisting}
+pip install pandas openpyxl
+
+cd yanghyeon-mock
+git init
+git config user.name "infgrp"
+git config user.email "infgrp@hanmail.net"
+git remote add origin https://github.com/infgrp/yanghyeon-mock.git
+git branch -M main
+
+python build_dashboard.py
+
+git add .
+git commit -m "최초 배포"
+git push -u origin main
+\end{lstlisting}
+
+이후 GitHub Settings → Pages → main, /docs 설정.
+
+\subsection{매달 반복 (3줄)}
+
+\begin{lstlisting}
+mkdir data/2026.04
+copy *.xlsx data/2026.04/
+python build_dashboard.py --push -m "4월 추가"
+\end{lstlisting}
+
+
+% ============================================================
+\section{코드 테스트 결과}
+% ============================================================
+
+아래 28개 항목에 대해 자동화된 테스트를 수행하였으며, 전체 통과하였다.
+
+\begin{longtable}{clp{8cm}}
+\toprule
+\textbf{\#} & \textbf{결과} & \textbf{테스트 항목} \\
+\midrule
+1 & \checkmark & \texttt{safe\_float(None)} 반환값 \texttt{None} \\
+2 & \checkmark & \texttt{safe\_float(3.14)} 반환값 \texttt{3.14} \\
+3 & \checkmark & \texttt{safe\_int(3.7)} 반환값 \texttt{3} \\
+4 & \checkmark & \texttt{safe\_str(None)} 반환값 빈 문자열 \\
+5 & \checkmark & \texttt{data/2026.03} 폴더 인식 \\
+6 & \checkmark & 시험 라벨 ``3월'' 매핑 \\
+7 & \checkmark & 1, 2, 3학년 엑셀 파일 발견 \\
+8 & \checkmark & 1학년 271명 파싱 \\
+9 & \checkmark & 2학년 255명 파싱 \\
+10 & \checkmark & 3학년 233명 파싱 \\
+11 & \checkmark & 1학년 필드 구조 (cls, name, 국어, 수학, ...) \\
+12 & \checkmark & 2학년 필드 구조 동일 \\
+13 & \checkmark & 3학년 필드 구조 (탐구1, 탐구2 + sub) \\
+14 & \checkmark & 등급 범위 1\textasciitilde9 검증 \\
+15 & \checkmark & 3학년 선택과목명 존재 확인 \\
+16 & \checkmark & 총 학생수 759명 \\
+17 & \checkmark & JSON order 배열에 ``2026.03'' 포함 \\
+18 & \checkmark & JSON 직렬화/역직렬화 일치 \\
+19 & \checkmark & 템플릿 플레이스홀더 \texttt{\{\{EXAM\_DATA\}\}} 치환 완료 \\
+20 & \checkmark & \texttt{const RAW=} 존재 확인 \\
+21 & \checkmark & \texttt{buildF()} 함수 존재 확인 \\
+22 & \checkmark & HTML 파일 크기 240,148 bytes \\
+23 & \checkmark & 학생수 뱃지 ``759명'' 포함 \\
+24 & \checkmark & 내장 JSON 파싱 성공 (무결성 검증) \\
+25 & \checkmark & 복수 시험(2026.03 + 2026.04) 스캔 \\
+26 & \checkmark & 복수 시험 order 길이 = 2 \\
+27 & \checkmark & 복수 시험 총 학생수 증가 확인 \\
+28 & \checkmark & 복수 시험 HTML에 ``2026.04'' 포함 확인 \\
+\bottomrule
+\end{longtable}
+
+\begin{successbox}
+\textbf{28/28 테스트 통과.} 단일 시험 및 복수 시험 모두 정상 동작 확인.
+\end{successbox}
+
+
+\end{document}

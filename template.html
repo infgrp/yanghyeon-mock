@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>양현고 모의고사 분석</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script>window.onerror=function(m,s,l,c,e){document.body.insertAdjacentHTML('afterbegin','<div style="background:#fce8e8;color:#791F1F;padding:12px;margin:8px;border-radius:8px;font-size:11px;word-break:break-all">JS오류: '+m+' (line:'+l+')</div>');return false}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#f6f4ef;--card:#fff;--tx:#2c2c2a;--sub:#73726c;--hint:#b4b2a9;--bd:#e8e6df;
+--c50:#FAECE7;--c200:#F0997B;--c400:#D85A30;--c600:#993C1D;--c800:#712B13;
+--t50:#E1F5EE;--t200:#5DCAA5;--t400:#1D9E75;--t600:#0F6E56;--t800:#085041;
+--p50:#EEEDFE;--p200:#AFA9EC;--p400:#7F77DD;--p600:#534AB7;--p800:#3C3489;
+--b50:#E6F1FB;--b200:#85B7EB;--b400:#378ADD;--b600:#185FA5;--b800:#0C447C;
+--g50:#EAF3DE;--g400:#639922;--g800:#27500A;
+--a50:#FAEEDA;--a400:#EF9F27;--a800:#633806;
+--r50:#FCEBEB;--r400:#E24B4A;--r800:#791F1F;
+--pk50:#FBEAF0;--pk400:#D4537E;--pk800:#72243E}
+body{font-family:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased;padding-bottom:72px}
+.w{max-width:640px;margin:0 auto;padding:0 10px}
+header{text-align:center;padding:24px 16px 20px;margin:-0px -10px 0;border-radius:0 0 20px 20px;background:linear-gradient(135deg,#3C3489 0%,#534AB7 40%,#7F77DD 100%);position:relative;overflow:hidden}
+header::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08)}
+header::after{content:'';position:absolute;bottom:-20px;left:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.05)}
+header h1{font-size:18px;font-weight:700;color:#fff;position:relative;letter-spacing:-0.3px}
+header p{font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px;position:relative;letter-spacing:1px}
+header .badge{display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:3px 12px;font-size:9px;color:rgba(255,255,255,0.85);margin-top:8px;letter-spacing:0.5px;position:relative}
+.flt{background:var(--card);border-radius:12px;padding:10px 12px;margin-bottom:10px;border:1px solid var(--bd)}
+.fl{font-size:9px;color:var(--sub);font-weight:500;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:5px;margin-top:8px}
+.fl:first-child{margin-top:0}
+.pr{display:flex;gap:4px;flex-wrap:wrap}
+.p{padding:6px 12px;border-radius:18px;font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid var(--bd);background:var(--card);color:var(--sub);transition:all .12s;white-space:nowrap}
+.p:active{transform:scale(.96)}
+.p.co.on{background:var(--c50);border-color:var(--c400);color:var(--c800)}
+.p.te.on{background:var(--t50);border-color:var(--t400);color:var(--t800)}
+.p.pu.on{background:var(--p50);border-color:var(--p400);color:var(--p800)}
+.p.bl.on{background:var(--b50);border-color:var(--b400);color:var(--b800)}
+.p.pk.on{background:var(--pk50);border-color:var(--pk400);color:var(--pk800)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--bd);display:flex;z-index:100;padding:2px 0 env(safe-area-inset-bottom,6px)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 0 3px;font-size:9px;color:var(--hint);cursor:pointer;border:none;background:none;font-family:inherit;transition:color .12s}
+.nb.on{color:var(--p600);font-weight:500}
+.nb svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cd{background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid var(--bd)}
+.ct{font-size:12px;font-weight:500;color:var(--sub);margin-bottom:8px}
+.sg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px}
+.st{border-radius:8px;padding:10px 8px;text-align:center}
+.sl{font-size:9px;font-weight:500;margin-bottom:1px}
+.sv{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.ss{font-size:8px;margin-top:1px}
+.bars{display:flex;gap:3px;align-items:flex-end;height:100px}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bv{font-size:8px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.bb{width:100%;border-radius:3px 3px 0 0;transition:height .3s;min-height:1px}
+.bl_{font-size:8px;color:var(--hint);font-weight:500}
+.search{width:100%;padding:9px 12px;border:1.5px solid var(--bd);border-radius:10px;font-size:14px;font-family:inherit;background:var(--card);outline:none}
+.search:focus{border-color:var(--p400)}
+.sc{padding:12px;border-bottom:1px solid var(--bd);cursor:pointer}
+.sc:active{background:var(--p50)}
+.sn{font-size:13px;font-weight:700}
+.si{font-size:10px;color:var(--sub)}
+.sp{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+.pill{padding:2px 7px;border-radius:10px;font-size:9px;font-weight:600}
+.g1,.g2{background:var(--b50);color:var(--b800)}
+.g3{background:var(--t50);color:var(--t800)}
+.g4{background:var(--g50);color:var(--g800)}
+.g5{background:var(--a50);color:var(--a800)}
+.g6,.g7{background:var(--c50);color:var(--c800)}
+.g8,.g9{background:var(--r50);color:var(--r800)}
+.gb{display:inline-flex;width:18px;height:18px;border-radius:50%;font-size:8px;font-weight:700;align-items:center;justify-content:center;color:#fff;margin-left:2px;vertical-align:middle}
+.gb1{background:#185FA5}.gb2{background:#378ADD}.gb3{background:#1D9E75}.gb4{background:#639922}.gb5{background:#EF9F27}.gb6{background:#D85A30}.gb7{background:#993C1D}.gb8{background:#791F1F}.gb9{background:#501313}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--bd)}
+table.rk{width:100%;border-collapse:collapse;font-size:10px;min-width:480px}
+table.rk th{background:var(--p50);color:var(--p800);padding:7px 4px;font-weight:500;font-size:9px;position:sticky;top:0;text-align:center;white-space:nowrap}
+table.rk td{padding:5px 4px;text-align:center;border-bottom:1px solid var(--bd);font-family:'JetBrains Mono',monospace;font-size:9px}
+table.rk td.nm{font-family:'Noto Sans KR';text-align:left;font-size:10px}
+table.rk tr:active{background:var(--p50)}
+.pn{display:none}.pn.on{display:block}
+.back{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--p600);cursor:pointer;font-weight:500;padding:6px 0}
+.empty{text-align:center;padding:24px 0;color:var(--hint);font-size:12px;line-height:1.6}
+.subj-card{border:1px solid var(--bd);border-radius:10px;padding:14px;margin-bottom:10px}
+.subj-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.subj-card-name{font-size:14px;font-weight:700}
+.subj-card-count{font-size:10px;color:var(--sub)}
+.subj-card-stats{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.subj-mini{text-align:center;flex:1;min-width:55px}
+.subj-mini-v{font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.subj-mini-l{font-size:8px;color:var(--sub)}
+.subj-grade-row{display:flex;gap:2px;flex-wrap:wrap}
+.subj-grade-item{flex:1;min-width:28px;text-align:center;border-radius:6px;padding:4px 2px}
+.subj-grade-n{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.subj-grade-p{font-size:7px}
+.subj-grade-l{font-size:8px;font-weight:500;margin-bottom:1px}
+.ov-cls-subj-row{margin-bottom:10px}
+.ov-cls-subj-label{font-size:11px;font-weight:500;color:var(--sub);margin-bottom:4px}
+.border-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--bd)}
+.border-arrow{font-size:14px;font-weight:700;color:var(--t600);width:24px;text-align:center}
+.border-info{flex:1}
+.border-name{font-size:12px;font-weight:600}
+.border-detail{font-size:10px;color:var(--sub)}
+.border-tag{font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--t50);color:var(--t800)}
+.hm-tbl{border-collapse:collapse;font-size:9px;min-width:320px;width:100%}
+.hm-tbl th{padding:5px 3px;font-weight:500;color:var(--sub);font-size:8px;text-align:center;position:sticky;top:0;background:var(--card);white-space:nowrap}
+.hm-tbl td{padding:4px 2px;text-align:center;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:10px;border:1px solid var(--bg)}
+.hm-tbl td.hm-name{font-family:'Noto Sans KR';text-align:left;font-size:10px;font-weight:500;border:none;white-space:nowrap;padding-left:4px}
+.hcard{background:var(--card);border:1.5px solid var(--bd);border-radius:10px;padding:10px 12px;cursor:pointer;transition:border .15s}
+.hcard:active{border-color:var(--p400);background:var(--p50)}
+.hgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:500px){.hgrid{grid-template-columns:repeat(3,1fr)}}
+.hname{font-size:12px;font-weight:700}
+.hinfo{font-size:9px;color:var(--sub)}
+.hpills{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap}
+.alert-card{padding:10px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.alert-arrow{font-size:18px;font-weight:700;width:28px;text-align:center}
+.alert-up{color:var(--t600)}.alert-dn{color:var(--r400)}
+.alert-info{flex:1}
+.alert-name{font-size:12px;font-weight:600}
+.alert-detail{font-size:10px;color:var(--sub)}
+.sel{padding:6px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:12px;font-family:inherit;background:var(--card);outline:none;color:var(--tx)}
+.sel:focus{border-color:var(--p400)}
+.chart-box{position:relative;width:100%;height:220px}
+.cls-row{display:flex;gap:3px;align-items:flex-end;height:80px}
+.cls-c{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px}
+.cls-b{width:100%;border-radius:3px 3px 0 0;transition:height .3s}
+.cls-v{font-size:7px;font-family:'JetBrains Mono',monospace;font-weight:600}
+.cls-l{font-size:7px;color:var(--hint)}
+.cls-hl .cls-b{box-shadow:0 0 0 2px var(--p400)}
+.ds{border-radius:8px;padding:10px;text-align:center}
+.ds .score{font-size:20px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.ds .dn{font-size:9px;color:var(--sub);font-weight:500}
+.ds .do{font-size:7px;color:var(--hint)}
+.home-set{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.home-set label{font-size:11px;color:var(--sub);font-weight:500;white-space:nowrap}
+</style>
+</head>
+<body>
+<noscript><div style="padding:20px;text-align:center;font-size:14px;color:#791F1F">이 대시보드는 JavaScript가 필요합니다. 브라우저(Safari/Chrome)에서 직접 열어주세요.</div></noscript>
+<div class="w">
+<header>
+<div style="position:relative">
+<div style="font-size:22px;margin-bottom:6px">📊</div>
+<h1>양현고등학교 모의고사 분석</h1>
+<p>2026학년도 성적 분석 대시보드</p>
+<div class="badge">758명 · 3개 학년 · 실시간 분석</div>
+</div>
+</header>
+
+<div class="flt">
+ <div class="fl">시험</div>
+ <div class="pr" id="fe"></div>
+ <div class="fl">학년</div>
+ <div class="pr" id="fg"></div>
+ <div class="fl">반</div>
+ <div class="pr" id="fc"></div>
+ <div class="fl">과목</div>
+ <div class="pr" id="fs"></div>
+</div>
+
+<div class="pn on" id="p-ov">
+ <div class="cd"><div class="ct" id="ov-t"></div><div class="sg" id="ov-s"></div>
+ <div class="ct">등급 분포</div><div class="bars" id="ov-b"></div></div>
+
+ <div class="cd"><div class="ct">반별 성적 분포 (총점 평균)</div>
+ <div class="cls-row" id="ov-cls-score" style="height:100px"></div></div>
+
+ <div class="cd"><div class="ct">반별 평균 등급 분포</div>
+ <div id="ov-cls-subj"></div></div>
+
+ <div class="cd"><div class="ct">과목별 종합 분석 (등급분포)</div>
+ <div id="ov-subj-all"></div></div>
+
+ <div class="cd"><div class="ct">과목 간 상관 분석</div>
+ <div style="display:flex;gap:6px;margin-bottom:8px;align-items:center;flex-wrap:wrap">
+  <select class="sel" id="sc-x" onchange="drawScatter()"></select>
+  <span style="font-size:11px;color:var(--sub)">vs</span>
+  <select class="sel" id="sc-y" onchange="drawScatter()"></select>
+ </div>
+ <div id="sc-corr" style="text-align:center;margin-bottom:8px;font-size:13px;font-weight:500;color:var(--sub)"></div>
+ <div class="chart-box"><canvas id="scatter"></canvas></div>
+ </div>
+</div>
+
+<div class="pn" id="p-cl">
+ <div class="cd"><div class="ct" id="cl-t">반별 평균 등급</div>
+ <div class="home-set"><label>담임반:</label><select class="sel" id="hc" onchange="S.home=+this.value;updateCl()"></select></div>
+ <div class="cls-row" id="cl-avg"></div>
+ <div class="ct" style="margin-top:14px">반별 1~3등급 비율</div>
+ <div class="cls-row" id="cl-top"></div>
+ <div class="ct" style="margin-top:14px">반별 등급 분포 비교</div>
+ <div id="cl-dist"></div>
+ </div>
+</div>
+
+<div class="pn" id="p-home">
+ <div class="cd">
+  <div class="home-set"><label>담임반:</label><select class="sel" id="hc2" onchange="S.home=+this.value;updateHome()"></select></div>
+  <div class="ct" id="hm-t">담임반 학생 요약</div>
+  <div class="hgrid" id="hm-grid"></div>
+ </div>
+ <div class="cd"><div class="ct">등급 변동 알림 (2단계 이상)</div><div id="hm-alert"></div></div>
+ <div class="cd"><div class="ct">등급 경계 근접 학생</div>
+  <div style="font-size:10px;color:var(--sub);margin-bottom:8px">등급 경계에서 1~2점 차이인 학생 (상승 가능)</div>
+  <div id="hm-border"></div></div>
+ <div class="cd"><div class="ct">취약 과목 히트맵</div>
+  <div style="font-size:10px;color:var(--sub);margin-bottom:8px">행: 학생, 열: 과목, 색상: 등급</div>
+  <div id="hm-heatmap" style="overflow-x:auto;-webkit-overflow-scrolling:touch"></div></div>
+ <div class="cd"><div class="ct">국영수 vs 탐구 밸런스</div>
+  <div style="font-size:10px;color:var(--sub);margin-bottom:8px">대각선 위: 국영수 우세 / 아래: 탐구 우세</div>
+  <div class="chart-box"><canvas id="balance-chart"></canvas></div></div>
+ <div class="cd"><div class="ct" id="tier-t">등급 구간별 인원 추이</div>
+  <div class="chart-box"><canvas id="tier-chart"></canvas></div>
+ </div>
+</div>
+
+<div class="pn" id="p-sr">
+ <div class="cd" style="padding-bottom:4px">
+  <input class="search" id="q" placeholder="이름 또는 번호 검색" oninput="doSearch()">
+  <div id="sr"></div>
+ </div>
+ <div id="sd" style="display:none"></div>
+</div>
+
+<div class="pn" id="p-top">
+ <div class="cd">
+  <div class="ct">상위권 분석</div>
+  <div style="display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+   <span style="font-size:11px;color:var(--sub)">상위</span>
+   <select class="sel" id="topN" onchange="updateTop()">
+    <option value="5">5명</option><option value="10">10명</option><option value="15">15명</option>
+    <option value="20">20명</option><option value="25">25명</option><option value="30" selected>30명</option>
+    <option value="40">40명</option><option value="50">50명</option>
+   </select>
+   <span style="font-size:11px;color:var(--sub)">총점 기준</span>
+  </div>
+  <div class="sg" id="top-stats"></div>
+  <div class="ct">과목별 평균 등급</div>
+  <div class="chart-box"><canvas id="top-radar"></canvas></div>
+  <div class="ct" style="margin-top:12px">상위권 학생 목록</div>
+  <div class="tw" style="max-height:40vh;overflow-y:auto">
+   <table class="rk"><thead id="top-thead"></thead><tbody id="top-tbody"></tbody></table>
+  </div>
+ </div>
+</div>
+
+<div class="pn" id="p-rk">
+ <div class="cd"><div class="ct" id="rk-t">성적 일람표</div>
+ <div class="tw" style="max-height:55vh;overflow-y:auto">
+  <table class="rk"><thead id="rk-h"></thead><tbody id="rk-b"></tbody></table>
+ </div></div>
+</div>
+</div>
+
+<nav class="nav">
+<button class="nb on" onclick="go('ov')"><svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>통계</button>
+<button class="nb" onclick="go('cl')"><svg viewBox="0 0 24 24"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>반비교</button>
+<button class="nb" onclick="go('home')"><svg viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>담임반</button>
+<button class="nb" onclick="go('sr')"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>검색</button>
+<button class="nb" onclick="go('top')"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>상위권</button>
+<button class="nb" onclick="go('rk')"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h6"/></svg>일람표</button>
+</nav>
+
+<script>
+const RAW={{EXAM_DATA}};
+const EX=RAW.exams,ORD=RAW.order;
+const SBJ={"1":["국어","수학","영어","사탐","과탐","한국사"],"2":["국어","수학","영어","사탐","과탐","한국사"],"3":["국어","수학","영어","탐구1","탐구2","한국사"]};
+const LBL={"국어":"국어","수학":"수학","영어":"영어","사탐":"사회탐구","과탐":"과학탐구","한국사":"한국사","탐구1":"탐구1","탐구2":"탐구2"};
+const BC=['#185FA5','#378ADD','#1D9E75','#639922','#97C459','#EF9F27','#D85A30','#993C1D','#791F1F'];
+
+let S={g:'1',c:0,s:0,tab:'ov',home:1,exam:ORD[ORD.length-1]};
+let scatterChart=null,tierChart=null;
+
+function subs(){return SBJ[S.g]||SBJ["1"]}
+function cls(){let d=EX[S.exam];if(!d)return[];return[...new Set((d.data[S.g]||[]).map(x=>x.cls))].sort((a,b)=>a-b)}
+function allStudents(exam){return(EX[exam||S.exam]||{data:{}}).data[S.g]||[]}
+function students(){let a=allStudents();if(S.c>0){let cc=cls();a=a.filter(x=>x.cls===cc[S.c-1])}return a}
+function sk(){return subs()[S.s]||'국어'}
+
+function pills(id,items,cc,sel,cb){
+  const el=document.getElementById(id);
+  el.innerHTML=items.map((t,i)=>'<div class="p '+cc+(i===sel?' on':'')+'" data-i="'+i+'">'+t+'</div>').join('');
+  el.onclick=function(e){const t=e.target.closest('.p');if(!t)return;el.querySelectorAll('.p').forEach(x=>x.classList.remove('on'));t.classList.add('on');cb(+t.dataset.i)};
+}
+
+function buildF(){
+  const examItems=ORD.map(e=>(EX[e]||{}).label||e);
+  const examIdx=ORD.indexOf(S.exam);
+  pills('fe',examItems,'bl',examIdx>=0?examIdx:0,i=>{S.exam=ORD[i];S.c=0;buildF();update()});
+  pills('fg',['1학년','2학년','3학년'],'co',+S.g-1,i=>{S.g=''+(i+1);S.c=0;S.s=0;buildF();update()});
+  const cc=cls();
+  pills('fc',['전체',...cc.map(c=>c+'반')],'te',S.c,i=>{S.c=i;update()});
+  const ss=subs();if(S.s>=ss.length)S.s=0;
+  pills('fs',ss.map(s=>LBL[s]||s),'pu',S.s,i=>{S.s=i;update()});
+  buildHomeSelect();
+}
+
+function buildHomeSelect(){
+  const cc=cls();
+  ['hc','hc2'].forEach(id=>{const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=cc.map(c=>'<option value="'+c+'"'+(c===S.home?' selected':'')+'>'+c+'반</option>').join('');
+  });
+}
+
+function go(t){
+  S.tab=t;
+  document.querySelectorAll('.nb').forEach((b,i)=>b.classList.toggle('on',['ov','cl','home','sr','top','rk'][i]===t));
+  document.querySelectorAll('.pn').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p-'+t).classList.add('on');
+  update();
+}
+
+function gd(arr,k){
+  const g=Array(9).fill(0);let ss=0,sc=0,mx=0;
+  arr.forEach(s=>{const v=s[k];if(!v)return;if(v.grade>=1&&v.grade<=9)g[v.grade-1]++;if(v.score!=null){ss+=v.score;sc++;mx=Math.max(mx,v.score)}});
+  const tot=g.reduce((a,b)=>a+b,0);let wa=0;g.forEach((c,i)=>wa+=(i+1)*c);if(tot)wa/=tot;
+  const t3=g[0]+g[1]+g[2];let vr=0;g.forEach((c,i)=>vr+=c*(i+1-wa)**2);if(tot)vr/=tot;
+  return{g,tot,wa,t3,std:Math.sqrt(vr),avg:sc?ss/sc:0,mx,sc}
+}
+
+function mk(bg,lc,vc,label,value,sub){
+  return'<div class="st" style="background:'+bg+'"><div class="sl" style="color:'+lc+'">'+label+'</div><div class="sv" style="color:'+vc+'">'+value+'</div><div class="ss" style="color:'+lc+'">'+sub+'</div></div>';
+}
+
+function update(){
+  try{
+  const st=students(),skey=sk(),sl=LBL[skey]||skey;
+  const gl=S.g+'학년',clbl=S.c===0?'전체':cls()[S.c-1]+'반';
+  if(S.tab==='ov'){try{updateOv(st,skey,sl,gl,clbl)}catch(e){console.error('ov:',e)}}
+  if(S.tab==='cl'){try{updateCl()}catch(e){console.error('cl:',e)}}
+  if(S.tab==='home'){try{updateHome()}catch(e){console.error('home:',e)}}
+  if(S.tab==='rk'){try{updateRk(st,gl,clbl)}catch(e){console.error('rk:',e)}}
+  if(S.tab==='top'){try{updateTop()}catch(e){console.error('top:',e)}}
+  }catch(e){console.error('update:',e)}
+}
+
+function updateOv(st,skey,sl,gl,clbl){
+  document.getElementById('ov-t').textContent=gl+' · '+clbl+' · '+sl;
+  const d=gd(st,skey);
+  document.getElementById('ov-s').innerHTML=
+    mk('var(--c50)','var(--c600)','var(--c800)','평균 등급',d.wa.toFixed(1),'N='+d.tot)+
+    mk('var(--t50)','var(--t600)','var(--t800)','1~3등급',d.t3,d.tot?(d.t3/d.tot*100).toFixed(1)+'%':'0%')+
+    mk('var(--p50)','var(--p600)','var(--p800)','평균 원점수',d.avg.toFixed(1),'최고 '+d.mx)+
+    mk('var(--b50)','var(--b600)','var(--b800)','표준편차',d.std.toFixed(2),'등급 기준');
+  const mx=Math.max(...d.g,1);
+  document.getElementById('ov-b').innerHTML=d.g.map((v,i)=>
+    '<div class="bc"><div class="bv" style="color:'+BC[i]+'">'+v+'</div><div class="bb" style="height:'+Math.round(v/mx*85)+'px;background:'+BC[i]+'"></div><div class="bl_">'+(i+1)+'</div></div>').join('');
+
+  // 반별 성적 분포 (총점 평균)
+  const all=allStudents();
+  const cc=cls();
+  const clsScores=cc.map(c=>{
+    const cs=all.filter(x=>x.cls===c&&x.total!=null);
+    const avg=cs.length?cs.reduce((a,s)=>a+s.total,0)/cs.length:0;
+    return{c,avg,n:cs.length};
+  });
+  const mxScore=Math.max(...clsScores.map(d=>d.avg),1);
+  document.getElementById('ov-cls-score').innerHTML=clsScores.map(d=>{
+    const h=Math.round((d.avg/mxScore)*85);
+    const col=d.avg>=clsScores.reduce((a,b)=>a+b.avg,0)/clsScores.length?'var(--p400)':'var(--hint)';
+    return'<div class="cls-c"><div class="cls-v">'+d.avg.toFixed(0)+'</div><div class="cls-b" style="height:'+h+'px;background:'+col+'"></div><div class="cls-l">'+d.c+'반</div></div>';
+  }).join('');
+
+  // 반별 평균 등급 분포 (과목별)
+  const ss=subs();
+  const subjColors=['var(--c400)','var(--b400)','var(--t400)','var(--p400)','var(--pk400,#D4537E)','var(--hint)'];
+  let clsSubjH='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;font-size:9px">';
+  ss.forEach((sub,si)=>{clsSubjH+='<span style="color:'+subjColors[si%6]+'">● '+(LBL[sub]||sub)+'</span>'});
+  clsSubjH+='</div>';
+  clsSubjH+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:10px;min-width:320px"><thead><tr><th style="text-align:left;padding:4px;font-weight:500;color:var(--sub);font-size:9px">반</th>';
+  ss.forEach(sub=>{clsSubjH+='<th style="padding:4px;font-weight:500;color:var(--sub);font-size:9px;text-align:center">'+(LBL[sub]||sub)+'</th>'});
+  clsSubjH+='</tr></thead><tbody>';
+  cc.forEach(c=>{
+    const cs=all.filter(x=>x.cls===c);
+    clsSubjH+='<tr><td style="padding:4px;font-weight:600;font-size:11px">'+c+'반</td>';
+    ss.forEach(sub=>{
+      const vals=cs.map(s=>s[sub]).filter(v=>v&&v.grade!=null);
+      const avg=vals.length?vals.reduce((a,v)=>a+v.grade,0)/vals.length:0;
+      const col=avg<=3?'var(--t800)':avg<=5?'var(--a800)':'var(--c800)';
+      const bg=avg<=3?'var(--t50)':avg<=5?'var(--a50)':'var(--c50)';
+      clsSubjH+='<td style="text-align:center;padding:4px;font-family:JetBrains Mono;font-weight:600;font-size:11px;color:'+col+';background:'+bg+';border-radius:4px">'+avg.toFixed(1)+'</td>';
+    });
+    clsSubjH+='</tr>';
+  });
+  clsSubjH+='</tbody></table></div>';
+  document.getElementById('ov-cls-subj').innerHTML=clsSubjH;
+
+  // 과목별 종합 분석 (등급분포)
+  const gcols=[,'var(--b50)','var(--b50)','var(--t50)','var(--g50)','var(--a50)','var(--c50)','var(--c50)','var(--r50)','var(--r50)'];
+  const gtxt=[,'var(--b800)','var(--b800)','var(--t800)','var(--g800)','var(--a800)','var(--c800)','var(--c800)','var(--r800)','var(--r800)'];
+  let subjAllH='';
+  ss.forEach(sub=>{
+    const dd=gd(all,sub);
+    const label=LBL[sub]||sub;
+    subjAllH+='<div class="subj-card">';
+    subjAllH+='<div class="subj-card-head"><span class="subj-card-name">'+label+'</span><span class="subj-card-count">응시 '+dd.tot+'명</span></div>';
+    subjAllH+='<div class="subj-card-stats">';
+    subjAllH+='<div class="subj-mini"><div class="subj-mini-v" style="color:var(--p800)">'+dd.avg.toFixed(1)+'</div><div class="subj-mini-l">평균</div></div>';
+    subjAllH+='<div class="subj-mini"><div class="subj-mini-v" style="color:var(--b800)">'+dd.std.toFixed(1)+'</div><div class="subj-mini-l">표준편차</div></div>';
+    subjAllH+='<div class="subj-mini"><div class="subj-mini-v" style="color:var(--t800)">'+dd.mx+'</div><div class="subj-mini-l">최고점</div></div>';
+    subjAllH+='</div>';
+    subjAllH+='<div class="subj-grade-row">';
+    for(let i=0;i<9;i++){
+      const pct=dd.tot?(dd.g[i]/dd.tot*100):0;
+      subjAllH+='<div class="subj-grade-item" style="background:'+(gcols[i+1]||'var(--bg)')+'"><div class="subj-grade-l" style="color:'+(gtxt[i+1]||'var(--sub)')+'">'+(i+1)+'등급</div><div class="subj-grade-n" style="color:'+(gtxt[i+1]||'var(--tx)')+'">'+dd.g[i]+'<span style="font-size:8px;font-weight:400">명</span></div><div class="subj-grade-p" style="color:'+(gtxt[i+1]||'var(--sub)')+'">'+pct.toFixed(1)+'%</div></div>';
+    }
+    subjAllH+='</div></div>';
+  });
+  document.getElementById('ov-subj-all').innerHTML=subjAllH;
+
+  try{buildScatterSelects();drawScatter()}catch(e){console.error('scatter:',e)}
+}
+
+function updateCl(){
+  const cc=cls(),skey=sk(),sl=LBL[skey]||skey;
+  document.getElementById('cl-t').textContent=S.g+'학년 반별 '+sl+' 평균 등급';
+  const all=allStudents();
+  const cd=cc.map(c=>({c,...gd(all.filter(x=>x.cls===c),skey)}));
+  document.getElementById('cl-avg').innerHTML=cd.map(d=>{
+    const h=Math.round((d.wa/9)*70);
+    const col=d.wa<=3?'var(--t400)':d.wa<=5?'var(--a400)':'var(--c400)';
+    const hl=d.c===S.home?' cls-hl':'';
+    return'<div class="cls-c'+hl+'"><div class="cls-v">'+d.wa.toFixed(1)+'</div><div class="cls-b" style="height:'+h+'px;background:'+col+'"></div><div class="cls-l">'+d.c+'반</div></div>';
+  }).join('');
+  const mxp=Math.max(...cd.map(d=>d.tot?d.t3/d.tot*100:0),1);
+  document.getElementById('cl-top').innerHTML=cd.map(d=>{
+    const p=d.tot?d.t3/d.tot*100:0;const hl=d.c===S.home?' cls-hl':'';
+    return'<div class="cls-c'+hl+'"><div class="cls-v">'+p.toFixed(0)+'%</div><div class="cls-b" style="height:'+Math.round(p/mxp*60)+'px;background:var(--t400)"></div><div class="cls-l">'+d.c+'반</div></div>';
+  }).join('');
+  // Distribution comparison
+  let distH='';
+  const homeD=gd(all.filter(x=>x.cls===S.home),skey);
+  const allD=gd(all,skey);
+  if(homeD.tot>0){
+    distH+='<div style="display:flex;gap:3px;align-items:flex-end;height:90px">';
+    for(let i=0;i<9;i++){
+      const hp=homeD.tot?(homeD.g[i]/homeD.tot*100):0;
+      const ap=allD.tot?(allD.g[i]/allD.tot*100):0;
+      const mx2=Math.max(hp,ap,1);
+      distH+='<div style="flex:1;display:flex;gap:1px;align-items:flex-end;height:100%">';
+      distH+='<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="font-size:6px;color:var(--p600)">'+hp.toFixed(0)+'</div><div style="width:100%;height:'+Math.max(2,Math.round(hp/50*70))+'px;background:var(--p400);border-radius:2px 2px 0 0"></div></div>';
+      distH+='<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="font-size:6px;color:var(--hint)">'+ap.toFixed(0)+'</div><div style="width:100%;height:'+Math.max(2,Math.round(ap/50*70))+'px;background:var(--bd);border-radius:2px 2px 0 0"></div></div>';
+      distH+='</div>';
+    }
+    distH+='</div><div style="display:flex;gap:3px">';
+    for(let i=0;i<9;i++)distH+='<div style="flex:1;text-align:center;font-size:7px;color:var(--hint)">'+(i+1)+'</div>';
+    distH+='</div>';
+    distH+='<div style="display:flex;gap:12px;justify-content:center;margin-top:6px;font-size:9px">';
+    distH+='<span style="color:var(--p600)">■ '+S.home+'반</span><span style="color:var(--hint)">■ 전체</span></div>';
+  }
+  document.getElementById('cl-dist').innerHTML=distH;
+}
+
+function updateHome(){
+  const all=allStudents();
+  const hst=all.filter(x=>x.cls===S.home).sort((a,b)=>(a.num||0)-(b.num||0));
+  const ss=subs();
+  document.getElementById('hm-t').textContent=S.home+'반 학생 요약 ('+hst.length+'명)';
+  
+  document.getElementById('hm-grid').innerHTML=hst.map((s,i)=>{
+    const pills=ss.slice(0,-1).map(sub=>{const v=s[sub];if(!v||v.grade==null)return'';const nm=v.sub||((LBL[sub]||sub).charAt(0));return'<span class="pill g'+v.grade+'">'+nm+' '+v.grade+'</span>'}).join('');
+    return'<div class="hcard" onclick="searchAndShow(\''+s.name+'\')"><div class="hname">'+s.name+'</div><div class="hinfo">'+(s.total!=null?'총점 '+s.total:'')+'</div><div class="hpills">'+pills+'</div></div>';
+  }).join('');
+  
+  // Grade change alerts
+  if(ORD.length<2){
+    document.getElementById('hm-alert').innerHTML='<div class="empty">월별 데이터가 2회 이상 필요합니다.<br>다음 시험 데이터 추가 시 자동 활성화됩니다.</div>';
+  } else {
+    const prev=ORD[ORD.length-2],curr=ORD[ORD.length-1];
+    const prevSt=(EX[prev]||{data:{}}).data[S.g]||[];
+    const currSt=(EX[curr]||{data:{}}).data[S.g]||[];
+    const alerts=[];
+    currSt.filter(x=>x.cls===S.home).forEach(cs=>{
+      const ps=prevSt.find(p=>p.name===cs.name&&p.cls===cs.cls);
+      if(!ps)return;
+      ss.forEach(sub=>{
+        const cv=cs[sub],pv=ps[sub];
+        if(!cv||!pv||cv.grade==null||pv.grade==null)return;
+        const diff=pv.grade-cv.grade;
+        if(Math.abs(diff)>=2)alerts.push({name:cs.name,subj:cv.sub||(LBL[sub]||sub),from:pv.grade,to:cv.grade,diff});
+      });
+    });
+    if(alerts.length===0){
+      document.getElementById('hm-alert').innerHTML='<div class="empty">2단계 이상 변동 학생이 없습니다.</div>';
+    } else {
+      document.getElementById('hm-alert').innerHTML=alerts.sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff)).map(a=>{
+        const up=a.diff>0;
+        return'<div class="alert-card"><div class="alert-arrow '+(up?'alert-up':'alert-dn')+'">'+(up?'▲':'▼')+'</div><div class="alert-info"><div class="alert-name">'+a.name+'</div><div class="alert-detail">'+a.subj+' '+a.from+'등급 → '+a.to+'등급 ('+(up?'+':'')+a.diff+')</div></div></div>';
+      }).join('');
+    }
+  }
+  
+  // Three new analyses
+  try{updateBorderStudents(hst,ss)}catch(e){console.error('border:',e)}
+  try{updateHeatmap(hst,ss)}catch(e){console.error('heatmap:',e)}
+  try{updateBalance(hst)}catch(e){console.error('balance:',e)}
+
+  // Tier trend
+  if(ORD.length<2){
+    document.getElementById('tier-t').textContent='등급 구간별 인원 추이 ('+(LBL[sk()]||sk())+')';
+    if(tierChart){try{tierChart.destroy()}catch(e){};tierChart=null}
+    const tc=document.getElementById('tier-chart');
+    if(tc)tc.parentElement.innerHTML='<canvas id="tier-chart"></canvas><div class="empty">월별 데이터가 2회 이상 필요합니다.</div>';
+  } else {
+    drawTierTrend();
+  }
+}
+
+function drawTierTrend(){
+  const skey=sk(),all=allStudents();
+  const hst=all.filter(x=>x.cls===S.home);
+  const labels=ORD.map(e=>(EX[e]||{}).label||e);
+  const t13=[],t46=[],t79=[];
+  ORD.forEach(e=>{
+    const d=(EX[e]||{data:{}}).data[S.g]||[];
+    const hs=d.filter(x=>x.cls===S.home);
+    let a=0,b=0,c=0;
+    hs.forEach(s=>{const v=s[skey];if(!v||!v.grade)return;if(v.grade<=3)a++;else if(v.grade<=6)b++;else c++});
+    t13.push(a);t46.push(b);t79.push(c);
+  });
+  const el=document.getElementById('tier-chart');
+  if(!el)return;
+  if(tierChart)try{tierChart.destroy()}catch(e){}
+  tierChart=CC(el,{type:'bar',data:{labels,datasets:[
+    {label:'1~3등급',data:t13,backgroundColor:'#1D9E75'},
+    {label:'4~6등급',data:t46,backgroundColor:'#EF9F27'},
+    {label:'7~9등급',data:t79,backgroundColor:'#D85A30'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10,family:'Noto Sans KR'}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#e8e6df'},ticks:{font:{size:9}}}}}});
+}
+
+function getGradeCuts(allSt,subKey){
+  const cuts={};
+  for(let g=1;g<=8;g++){
+    const scores=allSt.map(s=>s[subKey]).filter(v=>v&&v.grade===g&&v.score!=null).map(v=>v.score);
+    if(scores.length)cuts[g]=Math.min(...scores);
+  }
+  return cuts;
+}
+
+function updateBorderStudents(hst,ss){
+  const all=allStudents();
+  const el=document.getElementById('hm-border');
+  const alerts=[];
+  ss.forEach(sub=>{
+    if(sub==='한국사')return;
+    const cuts=getGradeCuts(all,sub);
+    hst.forEach(s=>{
+      const v=s[sub];
+      if(!v||v.score==null||v.grade==null||v.grade<=1)return;
+      const cutAbove=cuts[v.grade-1];
+      if(cutAbove==null)return;
+      const gap=cutAbove-v.score;
+      if(gap>0&&gap<=2){
+        alerts.push({name:s.name,sub:v.sub||(LBL[sub]||sub),score:v.score,from:v.grade,to:v.grade-1,gap:gap,cls:s.cls});
+      }
+    });
+  });
+  if(alerts.length===0){el.innerHTML='<div class="empty">경계 근접 학생이 없습니다</div>';return}
+  alerts.sort((a,b)=>a.gap-b.gap);
+  el.innerHTML=alerts.map(a=>
+    '<div class="border-card"><div class="border-arrow">↑</div><div class="border-info"><div class="border-name">'+a.name+'</div><div class="border-detail">'+a.sub+' '+a.score+'점 ('+a.from+'등급) → <b>+'+a.gap.toFixed(1)+'점</b>이면 '+a.to+'등급</div></div><div class="border-tag">+'+a.gap.toFixed(1)+'점</div></div>'
+  ).join('');
+}
+
+function updateHeatmap(hst,ss){
+  const el=document.getElementById('hm-heatmap');
+  const filtered=ss.filter(s=>s!=='한국사');
+  const sorted=[...hst].sort((a,b)=>(b.total||0)-(a.total||0));
+  const gcols=[,'#dbeafe','#bfdbfe','#bbf7d0','#d9f99d','#fef08a','#fed7aa','#fecaca','#fca5a5','#f87171'];
+  const gtxt=[,'#1e3a5f','#1e3a5f','#14532d','#365314','#713f12','#9a3412','#991b1b','#991b1b','#fff'];
+  let h='<div style="max-height:400px;overflow-y:auto"><table class="hm-tbl"><thead><tr><th style="text-align:left">이름</th>';
+  filtered.forEach(sub=>{h+='<th>'+(LBL[sub]||sub)+'</th>'});
+  h+='<th>평균</th></tr></thead><tbody>';
+  sorted.forEach(s=>{
+    h+='<tr><td class="hm-name">'+s.name+'</td>';
+    let sum=0,cnt=0;
+    filtered.forEach(sub=>{
+      const v=s[sub];
+      if(!v||v.grade==null){h+='<td style="background:var(--bg);color:var(--hint)">-</td>';return}
+      const g=v.grade;
+      sum+=g;cnt++;
+      h+='<td style="background:'+gcols[g]+';color:'+gtxt[g]+'">'+g+'</td>';
+    });
+    const avg=cnt?sum/cnt:0;
+    const ac=avg<=3?'#14532d':avg<=5?'#713f12':'#991b1b';
+    h+='<td style="font-size:9px;color:'+ac+'">'+avg.toFixed(1)+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  h+='<div style="display:flex;gap:2px;margin-top:8px;justify-content:center;align-items:center;font-size:8px;color:var(--sub)">';
+  for(let g=1;g<=9;g++){h+='<div style="display:flex;align-items:center;gap:1px"><div style="width:12px;height:12px;border-radius:2px;background:'+gcols[g]+'"></div>'+g+'</div>'}
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+let balanceChart=null;
+function updateBalance(hst){
+  const el=document.getElementById('balance-chart');
+  if(!el)return;
+  if(balanceChart)try{balanceChart.destroy()}catch(e){}
+  const ss=subs();
+  const kemKeys=ss.filter(s=>['국어','수학','영어'].includes(s));
+  const expKeys=ss.filter(s=>['사탐','과탐','탐구1','탐구2'].includes(s));
+  if(!kemKeys.length||!expKeys.length){
+    el.parentElement.innerHTML='<div class="empty">국영수/탐구 구분 불가</div>';return;
+  }
+  const pts=[];
+  hst.forEach(s=>{
+    let ks=0,kc=0,es=0,ec=0;
+    kemKeys.forEach(k=>{const v=s[k];if(v&&v.grade!=null){ks+=v.grade;kc++}});
+    expKeys.forEach(k=>{const v=s[k];if(v&&v.grade!=null){es+=v.grade;ec++}});
+    if(kc&&ec)pts.push({x:Math.round((ks/kc)*10)/10,y:Math.round((es/ec)*10)/10,name:s.name});
+  });
+  const bgCols=pts.map(p=>{
+    const diff=p.x-p.y;
+    if(Math.abs(diff)<0.5)return'rgba(127,119,221,0.5)';
+    return diff>0?'rgba(239,159,39,0.5)':'rgba(29,158,117,0.5)';
+  });
+  balanceChart=CC(el,{type:'scatter',data:{datasets:[{
+    data:pts,backgroundColor:bgCols,borderColor:bgCols.map(c=>c.replace('0.5','0.8')),borderWidth:1,pointRadius:5,pointHoverRadius:8
+  }]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const p=ctx.raw;return p.name+' (국영수 '+p.x+', 탐구 '+p.y+')'}}},
+      annotation:undefined
+    },
+    scales:{
+      x:{title:{display:true,text:'국영수 평균등급 ←우수     열위→',font:{size:10,family:'Noto Sans KR'}},min:1,max:9,grid:{color:'#e8e6df'},ticks:{stepSize:1,font:{size:9}}},
+      y:{title:{display:true,text:'탐구 평균등급 ←우수     열위→',font:{size:10,family:'Noto Sans KR'}},min:1,max:9,grid:{color:'#e8e6df'},ticks:{stepSize:1,font:{size:9}}}
+    }
+  }});
+}
+
+function buildScatterSelects(){
+  const ss=subs().filter(s=>s!=='한국사');
+  ['sc-x','sc-y'].forEach((id,idx)=>{
+    const el=document.getElementById(id);
+    el.innerHTML=ss.map((s,i)=>'<option value="'+s+'"'+(i===(idx===0?0:1)?' selected':'')+'>'+(LBL[s]||s)+'</option>').join('');
+  });
+}
+
+function drawScatter(){
+  const xk=document.getElementById('sc-x').value;
+  const yk=document.getElementById('sc-y').value;
+  const st=students();
+  const pts=[];
+  st.forEach(s=>{
+    const xv=s[xk],yv=s[yk];
+    if(!xv||!yv||xv.score==null||yv.score==null)return;
+    pts.push({x:xv.score,y:yv.score,name:s.name,cls:s.cls});
+  });
+  const n=pts.length;
+  let r=0,rLabel='';
+  if(n>=2){
+    const mx=pts.reduce((a,p)=>a+p.x,0)/n,my=pts.reduce((a,p)=>a+p.y,0)/n;
+    let sxy=0,sx2=0,sy2=0;
+    pts.forEach(p=>{const dx=p.x-mx,dy=p.y-my;sxy+=dx*dy;sx2+=dx*dx;sy2+=dy*dy});
+    r=(sx2>0&&sy2>0)?sxy/Math.sqrt(sx2*sy2):0;
+    const ar=Math.abs(r);
+    const strength=ar>=0.7?'강한':ar>=0.4?'보통':ar>=0.2?'약한':'거의 없는';
+    const dir=r>0?'양의':'음의';
+    const rc=ar>=0.7?'var(--t600)':ar>=0.4?'var(--a800)':'var(--sub)';
+    rLabel='<span style="color:'+rc+';font-family:JetBrains Mono;font-size:15px;font-weight:700">r = '+r.toFixed(3)+'</span> <span style="font-size:11px">('+strength+' '+dir+' 상관, N='+n+')</span>';
+  } else {rLabel='<span style="font-size:11px">데이터 부족 (N='+n+')</span>'}
+  document.getElementById('sc-corr').innerHTML=rLabel;
+  const el=document.getElementById('scatter');
+  if(scatterChart)try{scatterChart.destroy()}catch(e){}
+  scatterChart=CC(el,{type:'scatter',data:{datasets:[{
+    data:pts,backgroundColor:'rgba(127,119,221,0.5)',borderColor:'rgba(83,74,183,0.7)',borderWidth:1,pointRadius:4,pointHoverRadius:7
+  }]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){const p=ctx.raw;return p.name+' ('+p.cls+'반) - '+(LBL[xk]||xk)+':'+p.x+', '+(LBL[yk]||yk)+':'+p.y}}}},scales:{
+    x:{title:{display:true,text:LBL[xk]||xk,font:{size:11,family:'Noto Sans KR'}},grid:{color:'#e8e6df'},ticks:{font:{size:9}}},
+    y:{title:{display:true,text:LBL[yk]||yk,font:{size:11,family:'Noto Sans KR'}},grid:{color:'#e8e6df'},ticks:{font:{size:9}}}
+  }}});
+}
+
+function doSearch(){
+  const q=document.getElementById('q').value.trim();
+  const sr=document.getElementById('sr');
+  document.getElementById('sd').style.display='none';
+  sr.style.display='block';
+  if(q.length<1){sr.innerHTML='';return}
+  const all=allStudents();
+  const res=all.filter(s=>s.name.includes(q)||String(s.num).includes(q)).slice(0,30);
+  if(!res.length){sr.innerHTML='<div class="empty">검색 결과 없음</div>';return}
+  const ss=subs();
+  sr.innerHTML=res.map((s,i)=>{
+    const pl=ss.map(sub=>{const v=s[sub];if(!v||v.grade==null)return'';const nm=v.sub||(LBL[sub]||sub);return'<span class="pill g'+v.grade+'">'+nm+' '+v.grade+'</span>'}).join('');
+    return'<div class="sc" onclick="showDetail('+i+')"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="sn">'+s.name+'</span><span class="si">'+s.cls+'반 · 총점 '+(s.total||'-')+'</span></div><div class="sp">'+pl+'</div></div>';
+  }).join('');
+  sr._r=res;
+}
+
+function searchAndShow(name){
+  go('sr');
+  document.getElementById('q').value=name;
+  doSearch();
+  const sr=document.getElementById('sr');
+  if(sr._r&&sr._r.length>0)showDetail(0);
+}
+
+function showDetail(i){
+  const r=document.getElementById('sr')._r;if(!r)return;
+  const s=r[i],ss=subs();
+  document.getElementById('sr').style.display='none';
+  const sd=document.getElementById('sd');sd.style.display='block';
+  const colors=[,'var(--b50)','var(--b50)','var(--t50)','var(--g50)','var(--a50)','var(--c50)','var(--c50)','var(--r50)','var(--r50)'];
+  
+  let h='<div class="cd"><div class="back" onclick="backSr()">&#8592; 검색으로</div>';
+  h+='<div style="text-align:center;margin-bottom:12px"><div style="font-size:17px;font-weight:700">'+s.name+'</div>';
+  h+='<div style="font-size:11px;color:var(--sub)">'+S.g+'학년 '+s.cls+'반 · 총점 '+(s.total||'-')+' · 석차 '+(s.rank||'-')+'</div></div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px">';
+  ss.forEach(sub=>{
+    const v=s[sub];if(!v)return;
+    h+='<div class="ds" style="background:'+(v.grade?colors[v.grade]:'var(--bg)')+'"><div class="dn">'+(v.sub||(LBL[sub]||sub))+'</div>';
+    if(v.sub)h+='<div class="do">'+(LBL[sub]||sub)+'</div>';
+    h+='<div class="score">'+(v.score!=null?v.score:'-')+'</div><span class="gb gb'+(v.grade||0)+'">'+(v.grade||'-')+'</span></div>';
+  });
+  h+='</div>';
+  
+  // Monthly trend chart
+  h+='<div class="ct">월별 등급 추이</div>';
+  if(ORD.length<2){
+    h+='<div class="empty">월별 데이터가 2회 이상 필요합니다.<br>추가 시험 데이터가 업로드되면<br>과목별 등급 변화 꺾은선 그래프가 여기에 표시됩니다.</div>';
+  } else {
+    h+='<div class="chart-box"><canvas id="trend-chart"></canvas></div>';
+  }
+  h+='</div>';
+  sd.innerHTML=h;
+  
+  if(ORD.length>=2) drawTrend(s);
+}
+
+function drawTrend(s){
+  const el=document.getElementById('trend-chart');if(!el)return;
+  const ss=subs().filter(x=>x!=='한국사');
+  const labels=ORD.map(e=>(EX[e]||{}).label||e);
+  const colors=['#534AB7','#1D9E75','#185FA5','#D85A30','#639922'];
+  const datasets=ss.map((sub,idx)=>{
+    const data=ORD.map(e=>{
+      const sts=(EX[e]||{data:{}}).data[S.g]||[];
+      const found=sts.find(x=>x.name===s.name&&x.cls===s.cls);
+      if(!found||!found[sub]||found[sub].grade==null)return null;
+      return found[sub].grade;
+    });
+    return{label:(s[sub]&&s[sub].sub)||(LBL[sub]||sub),data,borderColor:colors[idx%5],backgroundColor:colors[idx%5]+'33',tension:.3,pointRadius:5,pointHoverRadius:8,borderWidth:2};
+  });
+  CC(el,{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{y:{reverse:true,min:1,max:9,ticks:{stepSize:1,font:{size:9}},grid:{color:'#e8e6df'}},x:{grid:{display:false},ticks:{font:{size:10,family:'Noto Sans KR'}}}},plugins:{legend:{position:'bottom',labels:{font:{size:9,family:'Noto Sans KR'},boxWidth:12}}}}});
+}
+
+function backSr(){document.getElementById('sd').style.display='none';document.getElementById('sr').style.display='block'}
+
+function updateRk(st,gl,clbl){
+  const sorted=[...st].sort((a,b)=>(b.total||0)-(a.total||0));
+  const ss=subs();
+  document.getElementById('rk-t').textContent=gl+' '+clbl+' 성적 일람표';
+  document.getElementById('rk-h').innerHTML='<tr><th>#</th><th>이름</th><th>반</th>'+ss.map(s=>'<th>'+(LBL[s]||s)+'</th>').join('')+'<th>총점</th></tr>';
+  document.getElementById('rk-b').innerHTML=sorted.slice(0,200).map((s,i)=>{
+    const cells=ss.map(sub=>{const v=s[sub];if(!v||v.score==null)return'<td>-</td>';return'<td>'+v.score+'<span class="gb gb'+v.grade+'">'+v.grade+'</span></td>'}).join('');
+    return'<tr><td>'+(i+1)+'</td><td class="nm">'+s.name+'</td><td>'+s.cls+'</td>'+cells+'<td style="font-weight:700">'+(s.total!=null?s.total:'-')+'</td></tr>';
+  }).join('');
+}
+
+let topRadar=null;
+function updateTop(){
+  const n=+(document.getElementById('topN')||{}).value||30;
+  const st=students();
+  const sorted=[...st].filter(s=>s.total!=null).sort((a,b)=>b.total-a.total);
+  const topSt=sorted.slice(0,n);
+  const ss=subs();
+  const gl=S.g+'학년',clbl=S.c===0?'전체':cls()[S.c-1]+'반';
+  
+  if(topSt.length===0){document.getElementById('top-stats').innerHTML='<div class="empty" style="grid-column:1/-1">데이터 없음</div>';return}
+  
+  const avgTotal=topSt.reduce((a,s)=>a+(s.total||0),0)/topSt.length;
+  const subjAvgs=ss.map(sub=>{
+    let sum=0,cnt=0;
+    topSt.forEach(s=>{const v=s[sub];if(v&&v.grade!=null){sum+=v.grade;cnt++}});
+    return cnt?sum/cnt:0;
+  });
+  const subjScoreAvgs=ss.map(sub=>{
+    let sum=0,cnt=0;
+    topSt.forEach(s=>{const v=s[sub];if(v&&v.score!=null){sum+=v.score;cnt++}});
+    return cnt?sum/cnt:0;
+  });
+  
+  document.getElementById('top-stats').innerHTML=
+    mk('var(--c50)','var(--c600)','var(--c800)','분석 대상',topSt.length+'명',gl+' '+clbl)+
+    mk('var(--t50)','var(--t600)','var(--t800)','평균 총점',avgTotal.toFixed(1),'상위 '+n+'명')+
+    mk('var(--p50)','var(--p600)','var(--p800)','총점 범위',topSt[topSt.length-1].total+'~'+topSt[0].total,'')+
+    mk('var(--b50)','var(--b600)','var(--b800)','평균 등급',(subjAvgs.reduce((a,b)=>a+b,0)/subjAvgs.length).toFixed(1),'전과목');
+  
+  const el=document.getElementById('top-radar');
+  if(topRadar)try{topRadar.destroy()}catch(e){}
+  topRadar=CC(el,{type:'radar',data:{
+    labels:ss.map(s=>(LBL[s]||s)),
+    datasets:[{label:'평균 등급',data:subjAvgs.map(v=>Math.round(v*10)/10),
+      borderColor:'#534AB7',backgroundColor:'rgba(127,119,221,0.2)',pointBackgroundColor:'#534AB7',borderWidth:2,pointRadius:4}]
+  },options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:1,max:9,reverse:true,ticks:{stepSize:1,font:{size:8}},pointLabels:{font:{size:10,family:'Noto Sans KR'}}}},plugins:{legend:{display:false}}}});
+  
+  document.getElementById('top-thead').innerHTML='<tr><th>#</th><th>이름</th><th>반</th>'+ss.map(s=>'<th>'+(LBL[s]||s)+'</th>').join('')+'<th>총점</th></tr>';
+  document.getElementById('top-tbody').innerHTML=topSt.map((s,i)=>{
+    const cells=ss.map(sub=>{const v=s[sub];if(!v||v.score==null)return'<td>-</td>';return'<td>'+v.score+'<span class="gb gb'+v.grade+'">'+v.grade+'</span></td>'}).join('');
+    return'<tr><td>'+(i+1)+'</td><td class="nm">'+s.name+'</td><td>'+s.cls+'</td>'+cells+'<td style="font-weight:700">'+s.total+'</td></tr>';
+  }).join('');
+}
+
+function CC(el,cfg){try{if(typeof Chart==='undefined'){el.parentElement.innerHTML='<div class="empty">차트 라이브러리 로딩 중...</div>';return null}return new Chart(el,cfg)}catch(e){console.error('Chart error:',e);return null}}
+try{buildF();update()}catch(e){console.error('Init error:',e);document.querySelector('.w').insertAdjacentHTML('afterbegin','<div style="background:#fce8e8;color:#791F1F;padding:12px;border-radius:10px;margin-bottom:10px;font-size:12px">오류 발생: '+e.message+'</div>')}
+</script>
+</body>
+</html>
