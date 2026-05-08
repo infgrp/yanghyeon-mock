@@ -5,7 +5,7 @@
 사용법:
   python build_dashboard.py                    # data/ 폴더의 엑셀을 읽어 docs/index.html 생성
   python build_dashboard.py --push             # 생성 후 GitHub Pages에 자동 배포
-  python build_dashboard.py --push -m "4월 추가" # 커밋 메시지 지정
+  python build_dashboard.py --push -m "5월 추가" # 커밋 메시지 지정
 
 폴더 구조:
   data/
@@ -13,7 +13,7 @@
       1학년.xlsx
       2학년.xlsx
       3학년.xlsx
-    2026.04/
+    2026.05/
       1학년.xlsx
       ...
   template.html       ← 대시보드 HTML 템플릿
